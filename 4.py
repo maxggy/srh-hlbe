@@ -37,10 +37,10 @@ if len(b) >= 2:
     selected_images = random.sample(b, 2)
     
     with a1:
-        st.image(selected_images[0], width=100)
+        st.image(selected_images[0], width=300)
     
     with a2:
-        st.image(selected_images[1], width=100)
+        st.image(selected_images[1], width=300)
 else:
     st.warning("图片数量不足，无法显示两张不同的图片")
 
@@ -157,3 +157,4 @@ if chat:
             full_response = "抱歉，我暂时无法处理您的请求。请稍后再试。"
             message_placeholder.markdown(full_response)
             st.session_state.messages.append({"role": "assistant", "content": full_response})
+
