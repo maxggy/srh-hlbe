@@ -32,10 +32,10 @@ st.header(":rainbow[请问有什么可以帮助你的吗？]:smile:", divider="r
 a1, a2 = st.columns(2)  # 修正拼写：stramlit -> st
 with a1:
     selected_image1 = random.choice(b)
-    st.image(selected_image1, width=100)
+    st.image(selected_image1, width=300)
 with a2:
     selected_image2 = random.choice(b)
-    st.image(selected_image2, width=100)
+    st.image(selected_image2, width=300)
 
 # 初始化消息历史
 if "messages" not in st.session_state:
@@ -130,3 +130,4 @@ if chat:
         
         except Exception as e:
             st.error(f"调用Coze API时出错: {str(e)}")
+
