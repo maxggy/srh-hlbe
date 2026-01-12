@@ -1,9 +1,10 @@
-import streamlit as st  # 建议使用 as st 别名
+import streamlit as st
 from PIL import Image
 import os
 from openai import OpenAI
 import random
 
+# 图片URL列表
 d = "https://www.helloimg.com/i/2026/01/12/6964bf3b9c378.jpg"
 c = "https://www.helloimg.com/i/2026/01/12/6964bf3bc3d03.jpg"
 f = "https://www.helloimg.com/i/2026/01/12/6964bf3bc5482.jpeg"
@@ -12,30 +13,31 @@ e = "https://www.helloimg.com/i/2026/01/12/6964bf3cc89bb.jpg"
 j = "https://www.helloimg.com/i/2026/01/12/6964bf3c4bb56.jpg"
 k = [d, c, f, h, e, j]
 
-# 删除这行，避免变量名冲突：a=0
-
+# 页面初始化
 st.snow()
 st.header(":rainbow[我是哈利波特]")
 st.header(":rainbow[请问有什么可以帮助你的吗？]:smile:", divider="rainbow")
 
+# 随机显示图片
 a1, a2 = st.columns(2)
 with a1:
-    # 直接显示图片，不要赋值给变量
     selected_image1 = random.choice(k)
-    st.image(selected_image1, width=300)  # 只调用一次
+    st.image(selected_image1, width=300)
 
 with a2:
-    # 同理
     selected_image2 = random.choice(k)
-    st.image(selected_image2, width=300)  # 只调用一次
+    st.image(selected_image2, width=300)
 
+# 初始化消息历史
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# 显示历史消息
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+# 侧边栏功能
 if st.sidebar.button('清空历史对话'):
     st.session_state.messages = []
     st.rerun()
@@ -44,31 +46,6 @@ st.sidebar.text_area("安全提示：", value="请输入合理合法的问题", 
 abc = st.sidebar.button("背景", type="primary", use_container_width=False)
 if abc:
     st.snow()
-
-chat = st.chat_input("你好")
-if chat:
-    with st.chat_message("user"):
-        st.markdown(chat)
-    st.session_state.messages.append({"role": "user", "content": chat})
-    
-    client = OpenAI(
-        api_key='sk-caa08ff7e9c64786b45e9b98ec281ee1',
-        base_url="https://api.deepseek.com"
-    )
-    
-    response = client.chat.completions.create(
-        model="deepseek-chat",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant"},
-            {"role": "user", "content": chat},
-        ],
-        stream=False
-    )
-    
-    with st.chat_message("assistant"):
-        st.markdown(response.choices[0].message.content)
-    
-    st.session_state.messages.append({"role": "assistant", "content": response.choices[0].message.content})
 
 # 登录部分
 y = 0
@@ -80,7 +57,6 @@ t = st.sidebar.text_input("密码", type="password", label_visibility="visible")
 if t == "12345678987654321010203040506070809080706050403020101357924681012345678912345678913579246810":
     y += 1
 
-# 这里变量名冲突了，你用了 a，前面也有 a，建议改名
 quick_pwd = st.sidebar.text_input("快捷密码", type="password", label_visibility="visible")
 if quick_pwd == "847012Dxl":
     y += 1
@@ -91,15 +67,76 @@ if y == 2 or y == 3:
     st.sidebar.markdown('密码正确')
 else:
     st.sidebar.markdown('密码错误')
-    y = 0  # 这里应该是赋值，不是比较
+    y = 0
 
 st.sidebar.markdown('导航：')
 st.sidebar.link_button("DeepSeek", "https://www.deepseek.com/")
 st.sidebar.link_button("百度", "https://www.baidu.com/")
 
 pinlun = st.sidebar.radio(
-    "你觉的这些回答有用吗",
+    "你觉得这些回答有用吗",
     ["有用", "一般", "没用"],
     captions=["值得鼓励", "继续努力", "需要提升"]
 )
-st.sidebar.write(f"您觉得{pinlun}")
+st.sidebar.write(f"您觉得: {pinlun}")
+
+# 聊天输入
+chat = st.chat_input("你好")
+if chat:
+    # 显示用户消息
+    with st.chat_message("user"):
+        st.markdown(chat)
+    
+    # 保存用户消息到历史
+    st.session_state.messages.append({"role": "user", "content": chat})
+    
+    # 创建OpenAI客户端
+    client = OpenAI(
+        api_key='sk-caa08ff7e9c64786b45e9b98ec281ee1',
+        base_url="https://api.deepseek.com"
+    )
+    
+    # 构建消息列表（包含历史对话）
+    messages_for_api = [
+        {"role": "system", "content": "You are a helpful assistant"}
+    ]
+    
+    # 添加历史消息
+    for msg in st.session_state.messages:
+        messages_for_api.append({
+            "role": msg["role"],
+            "content": msg["content"]
+        })
+    
+    # 流式调用API
+    with st.chat_message("assistant"):
+        message_placeholder = st.empty()
+        full_response = ""
+        
+        try:
+            # 调用流式API
+            response = client.chat.completions.create(
+                model="deepseek-chat",
+                messages=messages_for_api,
+                stream=True  # 开启流式输出
+            )
+            
+            # 处理流式响应
+            for chunk in response:
+                if chunk.choices[0].delta.content is not None:
+                    content = chunk.choices[0].delta.content
+                    full_response += content
+                    
+                    # 实时更新显示（添加光标效果）
+                    message_placeholder.markdown(full_response + "▌")
+            
+            # 最终显示完整回复（去掉光标）
+            message_placeholder.markdown(full_response)
+            
+        except Exception as e:
+            st.error(f"调用API时出错: {str(e)}")
+            full_response = "抱歉，我暂时无法处理您的请求。"
+            message_placeholder.markdown(full_response)
+    
+    # 保存助手消息到历史
+    st.session_state.messages.append({"role": "assistant", "content": full_response})
