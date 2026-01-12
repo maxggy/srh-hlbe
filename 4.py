@@ -37,10 +37,10 @@ if len(b) >= 2:
     selected_images = random.sample(b, 2)
     
     with a1:
-        st.image(selected_images[0], width=100)
+        st.image(selected_images[0], width=300)
     
     with a2:
-        st.image(selected_images[1], width=100)
+        st.image(selected_images[1], width=300)
 else:
     st.warning("图片数量不足，无法显示两张不同的图片")
 
@@ -145,3 +145,4 @@ if chat:
         
         except Exception as e:
             st.error(f"调用Coze API时出错: {str(e)}")
+
