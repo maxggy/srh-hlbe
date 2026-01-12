@@ -29,7 +29,7 @@ st.snow()
 st.header(":rainbow[我是哈利波特]")
 st.header(":rainbow[请问有什么可以帮助你的吗？]:smile:", divider="rainbow")
 
-# 修改这里：确保两张图片不同
+# 确保两张图片不同
 a1, a2 = st.columns(2)
 
 if len(b) >= 2:
@@ -37,10 +37,10 @@ if len(b) >= 2:
     selected_images = random.sample(b, 2)
     
     with a1:
-        st.image(selected_images[0], width=300)
+        st.image(selected_images[0], width=100)
     
     with a2:
-        st.image(selected_images[1], width=300)
+        st.image(selected_images[1], width=100)
 else:
     st.warning("图片数量不足，无法显示两张不同的图片")
 
@@ -73,7 +73,6 @@ t = st.sidebar.text_input("密码", type="password", label_visibility="visible")
 if t == "12345678987654321010203040506070809080706050403020101357924681012345678912345678913579246810":
     y += 1
 
-# 使用不同的变量名，避免与前面的变量冲突
 quick_pwd = st.sidebar.text_input("快捷密码", type="password", label_visibility="visible")
 if quick_pwd == "847012Dxl":
     y += 1
@@ -84,7 +83,7 @@ if y == 2 or y == 3:
     st.sidebar.markdown('密码正确')
 else:
     st.sidebar.markdown('密码错误')
-    y = 0  # 修正：应该是赋值，不是比较
+    y = 0
 
 st.sidebar.markdown('导航：')
 st.sidebar.link_button("DeepSeek", "https://www.deepseek.com/")
@@ -97,7 +96,7 @@ pinlun = st.sidebar.radio(
 )
 st.sidebar.write(f"您觉得: {pinlun}")
 
-# 聊天输入（应该放在最后）
+# 聊天输入
 chat = st.chat_input("你好")
 
 if chat:
@@ -108,18 +107,28 @@ if chat:
     # 保存用户消息到历史
     st.session_state.messages.append({"role": "user", "content": chat})
     
-    # 准备消息历史给Coze
-    # 注意：这里有一个潜在问题，我们构建additional_messages时只包含用户消息
-    # 实际上，对话应该包含用户和助手的历史消息
-    # 根据Coze文档，我们需要构建完整的对话历史
-    
-    # 构建完整的对话历史
+    # 构建消息历史给Coze
+    # 根据Coze的文档，使用Message类直接创建消息对象
     additional_messages = []
     for msg in st.session_state.messages:
         if msg["role"] == "user":
-            additional_messages.append(Message.build_user_question_text(msg["content"]))
+            # 创建用户消息
+            additional_messages.append(
+                Message(
+                    role="user",
+                    content=msg["content"],
+                    content_type="text"
+                )
+            )
         elif msg["role"] == "assistant":
-            additional_messages.append(Message.build_assistant_answer_text(msg["content"]))
+            # 创建助手消息
+            additional_messages.append(
+                Message(
+                    role="assistant",
+                    content=msg["content"],
+                    content_type="text"
+                )
+            )
     
     # 调用Coze API并显示流式响应
     with st.chat_message("assistant"):
@@ -134,7 +143,7 @@ if chat:
                 additional_messages=additional_messages,
             ):
                 if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
-                    if event.message.content:
+                    if event.message and event.message.content:
                         full_response += event.message.content
                         message_placeholder.markdown(full_response + "▌")
             
@@ -145,4 +154,6 @@ if chat:
         
         except Exception as e:
             st.error(f"调用Coze API时出错: {str(e)}")
-
+            full_response = "抱歉，我暂时无法处理您的请求。请稍后再试。"
+            message_placeholder.markdown(full_response)
+            st.session_state.messages.append({"role": "assistant", "content": full_response})
