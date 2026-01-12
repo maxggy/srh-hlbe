@@ -3,12 +3,12 @@ from PIL import Image
 import os
 from openai import OpenAI
 import random
-d=(r"https://www.helloimg.com/i/2026/01/12/6964bf3b9c378.jpg")
-c=(r"https://www.helloimg.com/i/2026/01/12/6964bf3bc3d03.jpg")
-f=(r"https://www.helloimg.com/i/2026/01/12/6964bf3bc5482.jpeg")
-h=(r"https://www.helloimg.com/i/2026/01/12/6964bf3bd9d16.jpg")
-e=(r"https://www.helloimg.com/i/2026/01/12/6964bf3cc89bb.jpg")
-j=(r"https://www.helloimg.com/i/2026/01/12/6964bf3c4bb56.jpg")
+d="https://www.helloimg.com/i/2026/01/12/6964bf3b9c378.jpg"
+c="https://www.helloimg.com/i/2026/01/12/6964bf3bc3d03.jpg"
+f="https://www.helloimg.com/i/2026/01/12/6964bf3bc5482.jpeg"
+h="https://www.helloimg.com/i/2026/01/12/6964bf3bd9d16.jpg"
+e="https://www.helloimg.com/i/2026/01/12/6964bf3cc89bb.jpg"
+j="https://www.helloimg.com/i/2026/01/12/6964bf3c4bb56.jpg"
 k=[d,c,f,h,e,j]
 a=0
 streamlit.snow()
@@ -16,10 +16,10 @@ streamlit.header(":rainbow[我是哈利波特]")
 streamlit.header(":rainbow[请问有什么可以帮助你的吗？]:smile:",divider="rainbow")
 a1,a2=streamlit.columns(2)
 with a1:
-    image1=Image.open(random.choice(k))
+    image1=image(random.choice(k))
     streamlit.image(image1,width=300)
 with a2:
-    image2=Image.open(random.choice(k))
+    image2=image(random.choice(k))
     streamlit.image(image2,width=300)
 if "messages" not in streamlit.session_state:
     streamlit.session_state.messages = []
@@ -75,3 +75,4 @@ streamlit.sidebar.link_button("百度","https://www.baidu.com/")
 pinlun = streamlit.sidebar.radio("你觉的这些回答有用吗",["有用","一般","没用"],captions=["值得鼓励","继续努力","需要提升"])
 streamlit.sidebar.write("您觉得",pinlun)
     
+
