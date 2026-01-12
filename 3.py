@@ -18,15 +18,20 @@ st.snow()
 st.header(":rainbow[我是哈利波特]")
 st.header(":rainbow[请问有什么可以帮助你的吗？]:smile:", divider="rainbow")
 
-# 随机显示图片
+# 修改这里：确保两张图片不同
 a1, a2 = st.columns(2)
-with a1:
-    selected_image1 = random.choice(k)
-    st.image(selected_image1, width=300)
 
-with a2:
-    selected_image2 = random.choice(k)
-    st.image(selected_image2, width=300)
+if len(k) >= 2:
+    # 方案1：使用random.sample确保两张不同
+    selected_images = random.sample(k, 2)
+    
+    with a1:
+        st.image(selected_images[0], width=300)
+    
+    with a2:
+        st.image(selected_images[1], width=300)
+else:
+    st.warning("图片数量不足")
 
 # 初始化消息历史
 if "messages" not in st.session_state:
